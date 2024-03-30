@@ -20,7 +20,7 @@ def print_error(message):
 
 def call_llm(system_prompt: str, user_prompt: str) -> dict:
     """
-    Calls the GPT-3.5-Turbo model with given system and user prompts.
+    Calls the GPT-3.5-Turbo model with given syswtem and user prompts.
 
     Parameters:
     - system_prompt (str): The system prompt to provide context for the model.
@@ -150,30 +150,31 @@ def save_website_as_markdown(urls):
             # Initialize an empty list to hold the content parts
             content_parts = []
 
-            # Function to capture <pre> and <code> blocks as they are
-            def capture_code_blocks(soup_element):
-                for element in soup_element.descendants:
-                    if element.name == 'pre':
-                        # For <pre> blocks, preserve as block code with newlines
-                        content_parts.append(f"\n\n```{element.get_text()}```\n\n")
-                    elif element.name == 'code':
-                        # For <code> blocks, check if they are within <pre> (handled above) or standalone
-                        # Standalone <code> blocks are treated as inline code without added newlines
-                        parent = element.find_parent('pre')
-                        if not parent:  # If <code> is not within <pre>, treat as inline
-                            content_parts.append(f"`{element.get_text()}`")
-                    elif element.name is None:
-                        # For NavigableString elements outside <pre> and <code>, append their text content
-                        stripped_string = element.string.strip()
-                        if stripped_string:  # Only append if the string is not empty after stripping
-                            content_parts.append(stripped_string)
+            # Function to recursively traverse the BeautifulSoup tree
+            def traverse(soup_element, inside_pre=False):
+                if soup_element.name == 'pre':
+                    # For <pre> blocks, append them directly and mark that we're inside a <pre> block
+                    content_parts.append("\n\n" + soup_element.get_text() + "\n\n")
+                    inside_pre = True
+                elif soup_element.name == 'code':
+                    if not inside_pre:  # Only append <code> blocks if they're not inside a <pre> block
+                        content_parts.append("\n\n" + soup_element.get_text() + "\n\n")
+                elif soup_element.name is None:
+                    # For NavigableString elements, append their string representation, stripped of leading/trailing whitespace
+                    stripped_string = soup_element.string.strip()
+                    if stripped_string:  # Only append if the string is not empty after stripping
+                        content_parts.append(stripped_string)
+                else:
+                    # For other tags, recursively process their children
+                    for child in soup_element.children:
+                        traverse(child, inside_pre=inside_pre)
 
-            # Start capturing from the body tag to exclude head content
+            # Start traversing from the body tag to exclude head content
             body_content = soup.body if soup.body else soup
-            capture_code_blocks(body_content)
+            traverse(body_content)
 
-            # Join all parts into a single string
-            content = ''.join(content_parts)
+            # Join all parts into a single string, with a space to separate parts
+            content = ' '.join(content_parts)
             print_success("HTML content has been successfully parsed and prepared with text and code blocks.\n\n")
 
             # Use GPT to generate a filename based on the URL
@@ -229,11 +230,13 @@ def generate_filename_from_url(url: str) -> str:
 
 
 def main():
-    natural_language_query = input("\n\n\nWhat developer documentation are you looking to search and save?\n\n")
-    keyword_query = generate_keyword_query(natural_language_query)
-    search_results = search_with_exa(keyword_query, 5)
-    dev_doc_urls = get_developer_doc_urls(search_results, keyword_query)
-    save_website_as_markdown(dev_doc_urls)
+    #natural_language_query = input("\n\n\nWhat developer documentation are you looking to search and save?\n\n")
+    #keyword_query = generate_keyword_query(natural_language_query)
+    #search_results = search_with_exa(keyword_query, 5)
+    #dev_doc_urls = get_developer_doc_urls(search_results, keyword_query)
+    #save_website_as_markdown(dev_doc_urls)
+
+    save_website_as_markdown("https://pydealer.readthedocs.io/en/latest/usage.html#stack-deck-manipulation") 
 
 if __name__ == "__main__":
     main()
