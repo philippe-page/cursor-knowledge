@@ -230,13 +230,11 @@ def generate_filename_from_url(url: str) -> str:
 
 
 def main():
-    #natural_language_query = input("\n\n\nWhat developer documentation are you looking to search and save?\n\n")
-    #keyword_query = generate_keyword_query(natural_language_query)
-    #search_results = search_with_exa(keyword_query, 5)
-    #dev_doc_urls = get_developer_doc_urls(search_results, keyword_query)
-    #save_website_as_markdown(dev_doc_urls)
-
-    save_website_as_markdown("https://pydealer.readthedocs.io/en/latest/usage.html#stack-deck-manipulation") 
+    natural_language_query = input("\n\n\nWhat developer documentation are you looking to search and save?\n\n")
+    keyword_query = generate_keyword_query(natural_language_query)
+    search_results = search_with_exa(keyword_query, 5)
+    dev_doc_urls = get_developer_doc_urls(search_results, keyword_query)
+    save_website_as_markdown(dev_doc_urls)
 
 if __name__ == "__main__":
     main()
