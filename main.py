@@ -152,6 +152,8 @@ def save_website_as_markdown(urls):
 
             # Function to recursively traverse the BeautifulSoup tree
             def traverse(soup_element, inside_pre=False):
+                if soup_element.name == 'script':  # Skip <script> tags and their content
+                    return
                 if soup_element.name == 'pre':
                     # For <pre> blocks, append them directly and mark that we're inside a <pre> block
                     content_parts.append("\n\n" + soup_element.get_text() + "\n\n")
